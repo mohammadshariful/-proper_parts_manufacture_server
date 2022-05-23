@@ -22,6 +22,7 @@ async function run() {
     await client.connect();
     const toolsCollection = client.db("proper_parts").collection("tools");
     const purchaseCollection = client.db("proper_parts").collection("purchase");
+    const reviewsCollection = client.db("proper_parts").collection("reviews");
 
     //tools get api
     app.get("/tools", async (req, res) => {
@@ -41,6 +42,13 @@ async function run() {
       const result = await purchaseCollection.insertOne(purchase);
       res.send(result);
     });
+    /* --------------Reviews Collection Api----------------------- */
+    //get reviews api
+    app.get("/reviews", async (req, res) => {
+      const reviews = await reviewsCollection.find({}).toArray();
+      res.send(reviews);
+    });
+    /* --------------Reviews Collection Api----------------------- */
   } finally {
     //   client.close();
   }
