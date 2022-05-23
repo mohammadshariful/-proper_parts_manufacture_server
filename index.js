@@ -20,7 +20,20 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    console.log("mongodb connect");
+    const toolsCollection = client.db("proper_parts").collection("tools");
+
+    //tools get api
+    app.get("/tools", async (req, res) => {
+      const tools = await toolsCollection.find({}).toArray();
+      res.send(tools);
+    });
+    // find single tool
+    app.get("/tools/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await toolsCollection.findOne(query);
+      res.send(result);
+    });
   } finally {
     //   client.close();
   }
