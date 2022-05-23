@@ -23,7 +23,7 @@ async function run() {
     const toolsCollection = client.db("proper_parts").collection("tools");
     const purchaseCollection = client.db("proper_parts").collection("purchase");
     const reviewsCollection = client.db("proper_parts").collection("reviews");
-
+    /* --------------Tools Collection Api Start----------------------- */
     //tools get api
     app.get("/tools", async (req, res) => {
       const tools = await toolsCollection.find({}).toArray();
@@ -36,19 +36,31 @@ async function run() {
       const result = await toolsCollection.findOne(query);
       res.send(result);
     });
+    /* --------------Tools Collection Api End----------------------- */
+    /* --------------Purchases Collection Api Start----------------------- */
     // purchase collection api
     app.post("/purchase", async (req, res) => {
       const purchase = req.body;
       const result = await purchaseCollection.insertOne(purchase);
       res.send(result);
     });
-    /* --------------Reviews Collection Api----------------------- */
+    /* --------------Purchases Collection Api End----------------------- */
+
+    /* --------------Reviews Collection Api Start----------------------- */
     //get reviews api
     app.get("/reviews", async (req, res) => {
       const reviews = await reviewsCollection.find({}).toArray();
       res.send(reviews);
     });
-    /* --------------Reviews Collection Api----------------------- */
+
+    //post review api
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      const result = await reviewsCollection.insertOne(review);
+      res.send(result);
+    });
+
+    /* --------------Reviews Collection Api End----------------------- */
   } finally {
     //   client.close();
   }
