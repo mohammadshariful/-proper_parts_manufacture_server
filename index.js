@@ -21,6 +21,7 @@ async function run() {
   try {
     await client.connect();
     const toolsCollection = client.db("proper_parts").collection("tools");
+    const purchaseCollection = client.db("proper_parts").collection("purchase");
 
     //tools get api
     app.get("/tools", async (req, res) => {
@@ -32,6 +33,12 @@ async function run() {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await toolsCollection.findOne(query);
+      res.send(result);
+    });
+    // purchase collection api
+    app.post("/purchase", async (req, res) => {
+      const purchase = req.body;
+      const result = await purchaseCollection.insertOne(purchase);
       res.send(result);
     });
   } finally {
