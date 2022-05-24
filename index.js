@@ -171,6 +171,7 @@ async function run() {
     /* --------------User Collection Api End----------------------- */
 
     /* --------------Profile Update Collection Api Start----------------------- */
+    //profile update api
     app.put("/update/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
       const update = req.body;
@@ -181,6 +182,7 @@ async function run() {
           city: update.city,
           education: update.education,
           phone: update.phone,
+          link: update.link,
         },
       };
       const result = await profileCollection.updateOne(
@@ -188,6 +190,14 @@ async function run() {
         updateDoc,
         options
       );
+      res.send(result);
+    });
+
+    //profile get api
+    app.get("/updateInfo/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const result = await profileCollection.findOne(filter);
       res.send(result);
     });
 
