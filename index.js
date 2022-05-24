@@ -80,6 +80,23 @@ async function run() {
       const result = await purchaseCollection.insertOne(purchase);
       res.send(result);
     });
+    // get my purchase collection
+    app.delete("/myPurchase/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await purchaseCollection.deleteOne(filter);
+      res.send(result);
+    });
+
+    // delete single order api
+    app.get("/myPurchase/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const myPurchase = await purchaseCollection
+        .find({ email: email })
+        .toArray();
+      res.send(myPurchase);
+    });
+
     /* --------------Purchases Collection Api End----------------------- */
 
     /* --------------Reviews Collection Api Start----------------------- */
