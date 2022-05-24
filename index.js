@@ -40,6 +40,7 @@ async function run() {
     const purchaseCollection = client.db("proper_parts").collection("purchase");
     const reviewsCollection = client.db("proper_parts").collection("reviews");
     const usersCollection = client.db("proper_parts").collection("users");
+    const profileCollection = client.db("proper_parts").collection("profile");
 
     //verify admin
     const verifyAdmin = async (req, res, next) => {
@@ -56,7 +57,7 @@ async function run() {
     /* --------------Tools Collection Api Start----------------------- */
     //tools get api
     app.get("/tools", async (req, res) => {
-      const tools = await toolsCollection.find({}).toArray();
+      const tools = await toolsCollection.find().toArray();
       res.send(tools);
     });
     // added tools api
@@ -74,27 +75,33 @@ async function run() {
     });
     /* --------------Tools Collection Api End----------------------- */
     /* --------------Purchases Collection Api Start----------------------- */
+    // get my purchase  api
+    app.get("/purchase/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const myPurchase = await purchaseCollection
+        .find({ email: email })
+        .toArray();
+      res.send(myPurchase);
+    });
     // purchase collection api
     app.post("/purchase", async (req, res) => {
       const purchase = req.body;
       const result = await purchaseCollection.insertOne(purchase);
       res.send(result);
     });
-    // get my purchase collection
+    // delete my purchase collection
     app.delete("/myPurchase/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const result = await purchaseCollection.deleteOne(filter);
       res.send(result);
     });
-
-    // delete single order api
-    app.get("/myPurchase/:email", verifyJWT, async (req, res) => {
-      const email = req.params.email;
-      const myPurchase = await purchaseCollection
-        .find({ email: email })
-        .toArray();
-      res.send(myPurchase);
+    // get my purchase single collection
+    app.get("/myPurchase/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await purchaseCollection.findOne(filter);
+      res.send(result);
     });
 
     /* --------------Purchases Collection Api End----------------------- */
@@ -162,6 +169,29 @@ async function run() {
     });
 
     /* --------------User Collection Api End----------------------- */
+
+    /* --------------Profile Update Collection Api Start----------------------- */
+    app.put("/update/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const update = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          city: update.city,
+          education: update.education,
+          phone: update.phone,
+        },
+      };
+      const result = await profileCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    /* --------------Profile Update Collection Api Edn----------------------- */
   } finally {
     //   client.close();
   }
