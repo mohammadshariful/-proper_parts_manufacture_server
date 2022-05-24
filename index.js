@@ -10,6 +10,9 @@ const app = express();
 //middleware
 app.use(express.json());
 app.use(cors());
+
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 //verify jwt / authentication
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -41,6 +44,7 @@ async function run() {
     const reviewsCollection = client.db("proper_parts").collection("reviews");
     const usersCollection = client.db("proper_parts").collection("users");
     const profileCollection = client.db("proper_parts").collection("profile");
+    const paymentsCollection = client.db("proper_parts").collection("payments");
 
     //verify admin
     const verifyAdmin = async (req, res, next) => {
@@ -102,6 +106,38 @@ async function run() {
       const filter = { _id: ObjectId(id) };
       const result = await purchaseCollection.findOne(filter);
       res.send(result);
+    });
+
+    //create payment intent api
+    app.post("/create-payment-intent", verifyJWT, async (req, res) => {
+      const service = req.body;
+      const price = service.price;
+      const amount = price * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+      res.send({ clientSecret: paymentIntent.client_secret });
+    });
+    // update perchase api
+
+    app.patch("/myPurchase/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const payment = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          paid: true,
+          transactionId: payment.transactionId,
+        },
+      };
+      const result = await paymentsCollection.insertOne(payment);
+      const updatedBooking = await purchaseCollection.updateOne(
+        filter,
+        updateDoc
+      );
+      res.send(updateDoc);
     });
 
     /* --------------Purchases Collection Api End----------------------- */
