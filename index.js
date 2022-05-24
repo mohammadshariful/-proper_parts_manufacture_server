@@ -66,7 +66,7 @@ async function run() {
     /* --------------Reviews Collection Api Start----------------------- */
     //get reviews api
     app.get("/reviews", async (req, res) => {
-      const reviews = await reviewsCollection.find({}).toArray();
+      const reviews = await reviewsCollection.find().toArray();
       res.send(reviews);
     });
 
@@ -101,6 +101,21 @@ async function run() {
         }
       );
       res.send({ result, token });
+    });
+    //get all users
+    app.get("/user", verifyJWT, async (req, res) => {
+      const users = await usersCollection.find().toArray();
+      res.send(users);
+    });
+    //make admin user api
+    app.put("/user/admin/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const updateDoc = {
+        $set: { role: "admin" },
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
     });
 
     /* --------------User Collection Api End----------------------- */
