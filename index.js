@@ -59,6 +59,12 @@ async function run() {
       const tools = await toolsCollection.find({}).toArray();
       res.send(tools);
     });
+    // added tools api
+    app.post("/tools", verifyJWT, verifyAdmin, async (req, res) => {
+      const product = req.body;
+      const result = await toolsCollection.insertOne(product);
+      res.send(result);
+    });
     // find single tool
     app.get("/tools/:id", async (req, res) => {
       const id = req.params.id;
