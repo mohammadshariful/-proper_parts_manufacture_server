@@ -95,7 +95,7 @@ async function run() {
       res.send(myPurchase);
     });
     // purchase collection api
-    app.post("/purchase", async (req, res) => {
+    app.post("/purchase", verifyJWT, async (req, res) => {
       const purchase = req.body;
       const result = await purchaseCollection.insertOne(purchase);
       res.send(result);
@@ -183,7 +183,7 @@ async function run() {
     });
 
     //post review api
-    app.post("/reviews", async (req, res) => {
+    app.post("/reviews", verifyJWT, async (req, res) => {
       const review = req.body;
       const result = await reviewsCollection.insertOne(review);
       res.send(result);
@@ -209,7 +209,7 @@ async function run() {
         { email: email },
         process.env.ACCESS_TOKEN_SECURE,
         {
-          expiresIn: "10h",
+          expiresIn: "10d",
         }
       );
       res.send({ result, token });
