@@ -60,7 +60,7 @@ async function run() {
     };
     /* --------------Tools Collection Api Start----------------------- */
     //tools get api
-    app.get("/tools", verifyJWT, async (req, res) => {
+    app.get("/tools", async (req, res) => {
       const tools = await toolsCollection.find().toArray();
       res.send(tools);
     });
@@ -155,15 +155,21 @@ async function run() {
     //orders update api
     app.patch("/manageOrder/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
-      const order = req.body;
-
       const filter = { _id: ObjectId(id) };
-      let status = order.status;
-      console.log(status);
       const updateDoc = {
-        $set: {},
+        $set: {
+          status: "shipped",
+        },
       };
-      const result = await paymentsCollection.updateOne(filter, updateDoc);
+      const result = await purchaseCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    // delete unpaid order api
+    app.delete("/manageOrder/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await purchaseCollection.deleteOne(filter);
       res.send(result);
     });
 
