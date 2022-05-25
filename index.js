@@ -60,7 +60,7 @@ async function run() {
     };
     /* --------------Tools Collection Api Start----------------------- */
     //tools get api
-    app.get("/tools", async (req, res) => {
+    app.get("/tools", verifyJWT, async (req, res) => {
       const tools = await toolsCollection.find().toArray();
       res.send(tools);
     });
@@ -71,10 +71,17 @@ async function run() {
       res.send(result);
     });
     // find single tool
-    app.get("/tools/:id", async (req, res) => {
+    app.get("/tools/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await toolsCollection.findOne(query);
+      res.send(result);
+    });
+    // delete product api
+    app.delete("/tools/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await toolsCollection.deleteOne(filter);
       res.send(result);
     });
     /* --------------Tools Collection Api End----------------------- */
@@ -129,6 +136,7 @@ async function run() {
       const updateDoc = {
         $set: {
           paid: true,
+          status: "pending",
           transactionId: payment.transactionId,
         },
       };
@@ -138,6 +146,25 @@ async function run() {
         updateDoc
       );
       res.send(updateDoc);
+    });
+    //manage all orders api
+    app.get("/manageOrder", verifyJWT, async (req, res) => {
+      const allOrders = await purchaseCollection.find().toArray();
+      res.send(allOrders);
+    });
+    //orders update api
+    app.patch("/manageOrder/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const order = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      let status = order.status;
+      console.log(status);
+      const updateDoc = {
+        $set: {},
+      };
+      const result = await paymentsCollection.updateOne(filter, updateDoc);
+      res.send(result);
     });
 
     /* --------------Purchases Collection Api End----------------------- */
